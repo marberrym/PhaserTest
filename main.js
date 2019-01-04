@@ -21,24 +21,17 @@ function preload ()
    
     
     this.load.image('logo', 'assets/rnmlogo.png');
-    this.load.image('pic', 'assets/pics/acryl_bladerunner.png');
 
-
-    this.load.setBaseURL('http://labs.phaser.io');
-
-    this.load.image('sky', 'assets/skies/nebula.jpg');
-    this.load.image('street', 'assets/sprites/cyberpunk-street.png')
-    this.load.image('rick', 'assets/sprites/rick.png');
-    this.load.image('blue', 'assets/particles/blue-flare.png');
+    this.load.image('sky', 'assets/nebula.jpg');
+    this.load.image('rick', 'assets/rick.png');
+    this.load.image('blue', 'assets/blue-flare.png');
+    this.load.image('morty', 'assets/morty.png');
 }
 
 function create ()
 {
     this.add.image(400, 300, 'sky');
-    this.add.image(400, 300, 'street');
-    this.add.image(400, 300, 'logo')
-
-    this.add.image(300, 300, 'pic');
+    this.add.image(400, 80, 'logo')
 
     var particles = this.add.particles('blue');
 
@@ -48,11 +41,39 @@ function create ()
         blendMode: 'ADD'
     });
 
-    var logo = this.physics.add.image(400, 100, 'rick');
+    var emitter2 = particles.createEmitter({
+        speed: 100,
+        scale: {start: 1, end: 0},
+        blendMode: 'ADD'
+    })
 
+    this.playButton = this.add.text(300, 200, 'PLAY!', { fill: '#0f0' });
+    this.devButton = this.add.text(600, 200, 'About the Developer!');
+
+    this.devButton.setInteractive();
+    this.playButton.setInteractive();
+
+    this.playButton.on('pointerup', () => console.log("Start Game!"))
+    this.devButton.on('pointerup', () => console.log("Matthew Marberry"))
+    this.devButton.on('pointerover', () => {
+        console.log("hover");
+        this.hoverState(devButton);
+    })
+
+    var Rick = this.physics.add.image(500, 100, 'rick');
+    var Morty = this.physics.add.image(100, 50, 'morty')
+
+    Morty.setBounce(1, .8);
     
-    logo.setBounce(1, .5);
-    logo.setCollideWorldBounds(true);
+    Morty.setCollideWorldBounds(true);
 
-    emitter.startFollow(logo);
+    Rick.setBounce(1, .5);
+    Rick.setCollideWorldBounds(true);
+
+    emitter.startFollow(Rick);
+    emitter2.startFollow(Morty);
+}
+
+function hoverState(button) {
+    this.devButton.setStyle({fill: '#ff0'})
 }
