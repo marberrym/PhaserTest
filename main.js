@@ -21,11 +21,11 @@ function preload ()
    
     
     this.load.image('logo', 'assets/rnmlogo.png');
-
     this.load.image('sky', 'assets/nebula.jpg');
     this.load.image('rick', 'assets/rick.png');
     this.load.image('blue', 'assets/blue-flare.png');
     this.load.image('morty', 'assets/morty.png');
+    this.load.image('greenorb', 'assets/greenorb.png');
 }
 
 function create ()
@@ -34,14 +34,15 @@ function create ()
     this.add.image(400, 80, 'logo')
 
     var particles = this.add.particles('blue');
+    var particles2 = this.add.particles('greenorb');
 
     var emitter = particles.createEmitter({
-        speed: 50,
+        speed: 100,
         scale: { start: 1, end: 0 },
         blendMode: 'ADD'
     });
 
-    var emitter2 = particles.createEmitter({
+    var emitter2 = particles2.createEmitter({
         speed: 100,
         scale: {start: 1, end: 0},
         blendMode: 'ADD'
@@ -61,7 +62,7 @@ function create ()
     })
 
     var Rick = this.physics.add.image(500, 100, 'rick');
-    var Morty = this.physics.add.image(100, 50, 'morty')
+    var Morty = this.physics.add.image(100, 50, 'morty');
 
     Morty.setBounce(1, .8);
     
@@ -70,8 +71,8 @@ function create ()
     Rick.setBounce(1, .5);
     Rick.setCollideWorldBounds(true);
 
-    emitter.startFollow(Rick);
-    emitter2.startFollow(Morty);
+    emitter2.startFollow(Rick);
+    emitter.startFollow(Morty);
 }
 
 function hoverState(button) {
