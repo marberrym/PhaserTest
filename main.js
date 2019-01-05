@@ -48,17 +48,30 @@ function create ()
         blendMode: 'ADD'
     })
 
-    this.playButton = this.add.text(300, 200, 'PLAY!', { fill: '#0f0' });
+    var textStyle = {
+        font: "normal 24px Arial",
+        fill: '#ffffff',
+        align: 'center',
+        boundsAlignH: "center", // bounds center align horizontally
+        boundsAlignV: "middle" // bounds center align vertically
+    }
+
+
+    this.playButtonBox = new Phaser.Geom.Rectangle(250, 200, 120, 60);
+    var boxFill = this.add.graphics({ fillStyle: { color: 0x0000ff } });
+    boxFill.fillRectShape(this.playButtonBox);
+
+    
+    this.playButton = this.add.text(275, 215, 'PLAY!', textStyle);
     this.devButton = this.add.text(600, 200, 'About the Developer!');
 
     this.devButton.setInteractive();
-    this.playButton.setInteractive();
+    this.playButtonBox.setInteractive();
 
-    this.playButton.on('pointerup', () => console.log("Start Game!"))
-    this.devButton.on('pointerup', () => console.log("Matthew Marberry"))
-    this.devButton.on('pointerover', () => {
+    this.playButtonBox.on('pointerup', () => console.log("Start Game!"))
+    this.playButtonBox.on('pointerover', () => {
         console.log("hover");
-        this.hoverState(devButton);
+        this.hoverState(playButtonBox);
     })
 
     var Rick = this.physics.add.image(500, 100, 'rick');
@@ -76,5 +89,5 @@ function create ()
 }
 
 function hoverState(button) {
-    this.devButton.setStyle({fill: '#ff0'})
+    this.button.setStyle({fill: '#ff0'})
 }
