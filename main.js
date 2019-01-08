@@ -5,7 +5,7 @@ let tween;
 let background;
 let iter = 0;
 let spaceKey;
-let lasers;
+let lasers = [];
 let gameOver = false;
 let enemies = [];
 let lives = [];
@@ -15,6 +15,7 @@ let lifecount = 3;
 let life1;
 let life2;
 let life3;
+let laser;
 const height = window.innerHeight;
 const width = window.innerWidth;
 
@@ -87,16 +88,37 @@ class GameScene extends Phaser.Scene {
         }
 
         if (Phaser.Input.Keyboard.JustDown(spaceKey)) {
-            this.addLaser();
-            this.removeLife();
-            this.nextWave();
+            if(lasers.length < 30) {
+                this.addLaser(3);
+            } else {
+                this.removeLife();
+                this.nextWave();
+            }
         }
+
+        for( var i = 0; i < lasers.length-1; i++){ 
+            if ( lasers[i].x > width) {
+              lasers.splice(i, 1); 
+            }
+         }
+         
+        
     }
 
-    addLaser() {
-        lasers = this.physics.add.sprite(player.x + 100, player.y, 'laser1');
-        lasers.setVelocityX(500);
-        console.log(player)
+    addLaser(number) {
+
+        for(let x = 0; x <= number; x++) {
+            console.log(x);
+            console.log(number);
+            // setTimeout(function() {
+                laser = this.physics.add.sprite(player.x + 100, player.y, 'laser1');
+                laser.setVelocityX(500);
+                lasers.push(laser);
+            // }, 3000)
+        }
+        // lasers = this.physics.add.sprite(player.x + 100, player.y, 'laser1');
+        // lasers.setVelocityX(500);
+        // console.log(player)
         
     }
 
