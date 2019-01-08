@@ -5,17 +5,21 @@ let tween;
 let background;
 let iter = 0;
 let spaceKey;
-let lasers = [];
+let lasers;
 let gameOver = false;
-let enemies = [];
-let lives = [];
+let enemies;
+let lives = 3;
 let wave = 1;
 let score = 0;
-let lifecount = 3;
 let life1;
 let life2;
 let life3;
 let laser;
+let newScore = 0;
+let nextWave = 1;
+let scoreDisplay;
+let waveDisplay;
+
 const height = window.innerHeight;
 const width = window.innerWidth;
 
@@ -31,20 +35,33 @@ class GameScene extends Phaser.Scene {
         this.load.image('laser1', 'assets/laser1.png');
         this.load.image('enemy', 'assets/enemy.png');
         this.load.image('lives', 'assets/lives.png');
+
+        this.load.audio('gameMusic', 'assets/gameMusic.mp3')
     }
 
     create() {
-        
+         
+        this.sound.play('gameMusic', {
+            mute: false,
+            volume: 5,
+            rate: 1,
+            detune: 0,
+            seek: 0,
+            loop: true,
+            delay: 0
+        });
 
-        
         background = this.add.tileSprite(width/2, height/2, width, height, 'background');
         player = this.physics.add.sprite(100, 100, 'player').setScale(.1, .1);
         this.add.image(width/2, 50, 'logo').setScale(.5, .5);
-        this.add.text(0, 0, `Lives:`, textStyle);
-        this.add.text(0, 20, `Score: ${score}`);
+        this.add.text(width-300, 50, `Lives:`, textStyle);
+        life1 = this.add.sprite(width-200, 50, 'lives').setScale(.1, .1);
+        life2 = this.add.sprite(width-150, 50, 'lives').setScale(.1, .1);
+        life3 = this.add.sprite(width-100, 50, 'lives').setScale(.1, .1);
+        scoreDisplay = this.add.text(20, 40, `Score: ${score}`);
+        waveDisplay = this.add.text(20, 20, `Wave: ${wave}`);
 
         
-
         player.setCollideWorldBounds(true);
 
         // tween = this.tweens.addCounter({
@@ -60,6 +77,11 @@ class GameScene extends Phaser.Scene {
 
         cursors = this.input.keyboard.createCursorKeys();
         spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+        lasers = this.physics.add.group();
+        enemies = this.physics.add.group();
+
+        this.physics.add.overlap(lasers, enemies, this.killRick, null, this);
+        this.physics.add.overlap(player, enemies, this.loseLife, null, this);
 
         this.addWave(wave);
 
@@ -68,80 +90,78 @@ class GameScene extends Phaser.Scene {
 
     update() {
 
+        
+        if (newScore != score) {
+            score = newScore;
+            scoreDisplay.destroy();
+            scoreDisplay = this.add.text(20, 40, `Score: ${score}`);
+        }
+
+        if (nextWave != wave) {
+            wave = nextWave;
+            waveDisplay.destroy();
+            waveDisplay = this.add.text(20, 20, `Wave: ${wave}`);
+        }
+
+        if (lives < 3 && life3.active) {
+            life3.destroy();
+        } else if (lives < 2 && life2.active) {
+            life2.destroy();
+        } else if (lives < 1 && life1.active) {
+            life1.destroy();
+            gameOver = true;
+        }
+
         // background.tilePositionX = Math.cos(iter) * 700;
         // background.tilePositionY = Math.sin(iter) * 500;
         // background.tileScaleX = tween.getValue();
         // background.tileScaleY = tween.getValue();
 
         if (cursors.up.isDown) {
-            player.body.setVelocityY(-100);
-            console.log(down);
+            player.body.setVelocityY(-200);
+            console.log("down");
         } else if (cursors.down.isDown) {
-            player.body.setVelocityY(100);
-            console.log(down);
+            player.body.setVelocityY(200);
+            console.log("down");
         } else if (cursors.right.isDown) {
             player.body.setVelocityY(0);
-            player.body.setVelocityX(100);
+            player.body.setVelocityX(200);
         } else if (cursors.left.isDown) {
             player.body.setVelocityY(0);
-            player.body.setVelocityX(-100);
+            player.body.setVelocityX(-200);
         }
 
         if (Phaser.Input.Keyboard.JustDown(spaceKey)) {
-            if(lasers.length < 30) {
-                this.addLaser(3);
-            } else {
-                this.removeLife();
-                this.nextWave();
-            }
-        }
-
-        for( var i = 0; i < lasers.length-1; i++){ 
-            if ( lasers[i].x > width) {
-              lasers.splice(i, 1); 
-            }
-         }
-         
-        
+            this.addLaser();
+            this.nextWaveStart();
+        }        
     }
 
-    addLaser(number) {
-
-        for(let x = 0; x <= number; x++) {
-            console.log(x);
-            console.log(number);
-            // setTimeout(function() {
-                laser = this.physics.add.sprite(player.x + 100, player.y, 'laser1');
-                laser.setVelocityX(500);
-                lasers.push(laser);
-            // }, 3000)
-        }
-        // lasers = this.physics.add.sprite(player.x + 100, player.y, 'laser1');
-        // lasers.setVelocityX(500);
-        // console.log(player)
-        
-    }
-
-    removeLife() {
-        lifecount -= 1;
+    addLaser() {    
+        laser = lasers.create(player.x + 100, player.y, 'laser1');
+        laser.setVelocityX(500);  
     }
 
     addWave(wave) {
         for(let x=0; x<= wave; x++) {
-            enemies.push(this.physics.add.sprite(width - 50, Phaser.Math.Between(150, height), 'enemy').setScale(.5, .5));
-            enemies.push(this.physics.add.sprite(width - 50, Phaser.Math.Between(150, height), 'enemy').setScale(.5, .5));
-            enemies.push(this.physics.add.sprite(width - 50, Phaser.Math.Between(150, height), 'enemy').setScale(.5, .5));
+            enemies.create(width - 50, Phaser.Math.Between(150, height), 'enemy').setScale(.5, .5).setVelocityX(-(wave * Phaser.Math.Between(100,500)));
+            enemies.create(width - 50, Phaser.Math.Between(150, height), 'enemy').setScale(.5, .5).setVelocityX(-(wave * Phaser.Math.Between(100,500)));
+            enemies.create(width - 50, Phaser.Math.Between(150, height), 'enemy').setScale(.5, .5).setVelocityX(-(wave * Phaser.Math.Between(100,500)));
         }
-
-        enemies.forEach(enemy => {
-            enemy.setVelocityX(-(wave * Phaser.Math.Between(50, 200)));
-        })
     }
 
-    nextWave(wave) {
-        let nextWave = wave + 1;
-        this.addWave(2);
-        wave+=1;
+    nextWaveStart(wave) {
+        nextWave++;
+        this.addWave(3);
+    }
+
+    killRick(laser, rick) {
+        rick.destroy();
+        newScore += 10;
+    }
+
+    loseLife(player, rick) {
+        lives -= 1;
     }
 }
 
